@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test AQ-50 Universitario</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, sans-serif; background: #f0ede6; min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; padding: 1.5rem 1rem; }
+.app { width: 100%; max-width: 560px; }
+.card { background: #fff; border-radius: 16px; border: 0.5px solid #e0ddd8; padding: 2rem; margin-bottom: 1rem; }
+h1 { font-size: 22px; font-weight: 600; color: #1a1a1a; margin-bottom: 0.25rem; }
+h2 { font-size: 18px; font-weight: 600; color: #1a1a1a; margin-bottom: 0.75rem; }
+h3 { font-size: 14px; font-weight: 600; color: #1a1a1a; margin-bottom: 0.5rem; }
+.subtitle { font-size: 13px; color: #999; margin-bottom: 1.5rem; line-height: 1.6; }
+label { font-size: 13px; color: #555; display: block; margin-bottom: 4px; margin-top: 14px; }
+input[type="text"], input[type="email"], input[type="password"] {
+  width: 100%; padding: 10px 12px; border: 0.5px solid #ccc; border-radius: 8px;
+  font-size: 14px; outline: none; transition: border-color 0.2s; color: #1a1a1a; background: #fff;
+}
+input:focus { border-color: #7F77DD; }
+.btn { display: block; width: 100%; padding: 11px; border-radius: 8px; border: none;
+  background: #534AB7; color: #fff; font-size: 14px; font-weight: 500; cursor: pointer;
+  margin-top: 1rem; transition: background 0.2s; }
+.btn:hover { background: #3C3489; }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; background: #534AB7; }
+.btn-outline { background: transparent; border: 0.5px solid #534AB7; color: #534AB7; }
+.btn-outline:hover { background: #EEEDFE; }
+.error { font-size: 13px; color: #A32D2D; background: #FCEBEB; padding: 9px 12px; border-radius: 8px; margin-top: 10px; }
+.success { font-size: 13px; color: #3B6D11; background: #EAF3DE; padding: 9px 12px; border-radius: 8px; margin-top: 10px; }
+.tabs { display: flex; gap: 4px; margin-bottom: 1.5rem; }
+.tab { flex: 1; padding: 8px; text-align: center; font-size: 13px; border-radius: 6px; cursor: pointer; border: 0.5px solid #ddd; color: #888; background: #fafafa; transition: all 0.15s; }
+.tab.active { background: #534AB7; color: #fff; border-color: #534AB7; }
+.progress-wrap { margin-bottom: 1.25rem; }
+.progress-top { display: flex; justify-content: space-between; font-size: 12px; color: #aaa; margin-bottom: 5px; }
+.progress-bar { height: 5px; background: #eee; border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; background: #534AB7; border-radius: 3px; transition: width 0.35s; }
+.q-num { font-size: 11px; font-weight: 600; color: #534AB7; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.q-text { font-size: 15px; color: #1a1a1a; line-height: 1.6; margin-bottom: 16px; }
+.options { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+.opt { padding: 11px 8px; border-radius: 8px; border: 0.5px solid #ddd; background: #fafafa;
+  font-size: 12px; cursor: pointer; transition: all 0.15s; text-align: center; color: #444; line-height: 1.4; }
+.opt:hover { border-color: #7F77DD; background: #EEEDFE; color: #534AB7; }
+.opt.sel { border-color: #534AB7; background: #534AB7; color: #fff; }
+.nav-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+.nav-title { font-size: 14px; font-weight: 600; color: #1a1a1a; }
+.logout-btn { font-size: 12px; color: #ccc; cursor: pointer; transition: color 0.15s; }
+.logout-btn:hover { color: #A32D2D; }
+.btn-row { display: flex; gap: 8px; margin-top: 1rem; }
+.result-big { text-align: center; padding: 1.25rem 0 1rem; }
+.result-num { font-size: 60px; font-weight: 700; color: #534AB7; line-height: 1; }
+.result-denom { font-size: 20px; color: #ccc; font-weight: 400; }
+.result-tag { display: inline-block; margin-top: 0.75rem; padding: 5px 18px; border-radius: 20px; font-size: 13px; font-weight: 500; }
+.tag-low { background: #EAF3DE; color: #3B6D11; }
+.tag-mid { background: #FAEEDA; color: #854F0B; }
+.tag-high { background: #FCEBEB; color: #A32D2D; }
+.badge-low { background: #EAF3DE; color: #3B6D11; }
+.badge-mid { background: #FAEEDA; color: #854F0B; }
+.badge-high { background: #FCEBEB; color: #A32D2D; }
+.info-box { background: #EEEDFE; border-radius: 10px; padding: 13px 15px; font-size: 13px; color: #3C3489; margin-bottom: 1.25rem; line-height: 1.6; }
+.chart-wrap { position: relative; height: 260px; margin-top: 0.75rem; }
+.breakdown { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 1.25rem; }
+.bd-item { text-align: center; background: #fafafa; border-radius: 8px; border: 0.5px solid #eee; padding: 8px 4px; }
+.bd-label { font-size: 9px; color: #aaa; margin-bottom: 3px; line-height: 1.3; }
+.bd-val { font-size: 20px; font-weight: 700; color: #534AB7; }
+.bd-max { font-size: 10px; color: #ccc; }
+.divider { height: 0.5px; background: #eee; margin: 1.25rem 0; }
+.rank-row { display: flex; align-items: center; gap: 10px; padding: 9px 8px; border-radius: 8px; margin-bottom: 3px; }
+.rank-row.me { background: #EEEDFE; }
+.rank-pos { font-size: 14px; font-weight: 700; min-width: 32px; color: #bbb; }
+.rank-pos.gold { color: #BA7517; }
+.rank-pos.silver { color: #888; }
+.rank-pos.bronze { color: #993C1D; }
+.rank-info { flex: 1; min-width: 0; }
+.rank-name { font-size: 13px; font-weight: 500; color: #1a1a1a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rank-domain { font-size: 11px; color: #bbb; }
+.rank-right { text-align: right; flex-shrink: 0; }
+.rank-score { font-size: 17px; font-weight: 700; color: #534AB7; }
+.rank-badge { font-size: 10px; padding: 1px 7px; border-radius: 10px; }
+.me-tag { font-size: 10px; color: #534AB7; margin-left: 4px; font-weight: 400; }
+.loading { text-align: center; padding: 2rem; color: #bbb; font-size: 14px; }
+.spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid #eee; border-top-color: #534AB7; border-radius: 50%; animation: spin 0.7s linear infinite; margin-right: 8px; vertical-align: middle; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.rank-row.clickable { cursor: pointer; transition: background 0.15s; }
+.rank-row.clickable:hover { background: #f5f3ff; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 999; display: flex; align-items: center; justify-content: center; padding: 1rem; animation: fadeIn 0.2s ease; }
+.modal-box { background: #fff; border-radius: 16px; border: 0.5px solid #e0ddd8; padding: 1.5rem; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; animation: popIn 0.25s cubic-bezier(.175,.885,.32,1.275); }
+.modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+.modal-close { font-size: 18px; color: #ccc; cursor: pointer; line-height: 1; padding: 4px 8px; border-radius: 6px; }
+.modal-close:hover { background: #f5f5f5; color: #888; }
+.modal-chart-wrap { position: relative; height: 280px; margin: 0.75rem 0; }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+@keyframes popIn { from{transform:scale(0.85);opacity:0} to{transform:scale(1);opacity:1} }
+</style>
+</head>
+<body>
+<div class="app" id="app"><div class="loading"><span class="spinner"></span>Cargando…</div></div>
+
+<script>
+const AQ_QUESTIONS = [
+  { text: "Prefiero hacer las cosas con otras personas antes que solo/a.", rev: true, cat: 0 },
+  { text: "Prefiero hacer las cosas de la misma manera una y otra vez.", rev: false, cat: 2 },
+  { text: "Si trato de imaginar algo, encuentro muy fácil crear una imagen mental.", rev: true, cat: 3 },
+  { text: "Con frecuencia me absorbo tanto en una cosa que pierdo de vista otras.", rev: false, cat: 4 },
+  { text: "Con frecuencia noto pequeños sonidos que otros no notan.", rev: false, cat: 1 },
+  { text: "Generalmente noto números de matrícula u otro tipo de cadenas de información.", rev: false, cat: 4 },
+  { text: "Otras personas me dicen que lo que dije fue descortés, aunque yo no lo vi así.", rev: false, cat: 0 },
+  { text: "Al leer una historia, puedo imaginar fácilmente cómo se verían los personajes.", rev: true, cat: 3 },
+  { text: "Estoy muy fascinado/a por las fechas.", rev: false, cat: 4 },
+  { text: "En un grupo social, puedo seguir fácilmente varias conversaciones al mismo tiempo.", rev: true, cat: 0 },
+  { text: "Me resulta fácil 'leer entre líneas' cuando alguien me habla.", rev: true, cat: 0 },
+  { text: "Suelo concentrarme en los detalles más que en el panorama general.", rev: false, cat: 1 },
+  { text: "Me resulta difícil saber cuándo es mi turno en una conversación.", rev: false, cat: 0 },
+  { text: "Disfruto haciendo las cosas de manera espontánea.", rev: true, cat: 2 },
+  { text: "Soy de las últimas personas en comprender el chiste.", rev: false, cat: 0 },
+  { text: "Me resulta fácil hacer más de una cosa a la vez.", rev: true, cat: 4 },
+  { text: "Disfruto hacer cosas de la vida cotidiana de la misma manera cada vez.", rev: false, cat: 2 },
+  { text: "Me resulta fácil mantener una conversación cara a cara.", rev: true, cat: 0 },
+  { text: "Noto patrones en las cosas todo el tiempo.", rev: false, cat: 1 },
+  { text: "Prefiero leer no-ficción antes que ficción.", rev: false, cat: 3 },
+  { text: "Me resulta difícil hacer amigos/as nuevos/as.", rev: false, cat: 0 },
+  { text: "Noto patrones en números, como matrículas o precios.", rev: false, cat: 1 },
+  { text: "Con frecuencia me dicen que soy bueno/a haciendo juegos de palabras.", rev: true, cat: 3 },
+  { text: "No suelo notar si alguien está coqueteando conmigo.", rev: false, cat: 0 },
+  { text: "No soy tan bueno/a para recordar números de teléfono.", rev: true, cat: 4 },
+  { text: "Me resulta difícil imaginar cómo sería ser otra persona.", rev: false, cat: 3 },
+  { text: "Me gusta reunirme con personas nuevas.", rev: true, cat: 0 },
+  { text: "Soy muy bueno/a notando si alguien está aburrido.", rev: true, cat: 0 },
+  { text: "Para mí es difícil saber si alguien está bromeando.", rev: false, cat: 0 },
+  { text: "Me resulta fácil hacer más de una cosa a la vez en conversaciones.", rev: true, cat: 4 },
+  { text: "Cuando hablo al teléfono, no estoy seguro/a cuándo es mi turno.", rev: false, cat: 0 },
+  { text: "Disfruto de las actividades sociales.", rev: true, cat: 0 },
+  { text: "Me resulta difícil calcular la emoción de alguien por su voz.", rev: false, cat: 0 },
+  { text: "Si hago algo por una razón, prefiero hacerlo siempre de la misma manera.", rev: false, cat: 2 },
+  { text: "Las personas con frecuencia me dicen que soy terco/a.", rev: false, cat: 2 },
+  { text: "Cuando era niño/a, disfrutaba jugando con otros niños.", rev: true, cat: 0 },
+  { text: "Me gusta recopilar información sobre categorías de cosas (tipos de coches, aves, plantas…).", rev: false, cat: 4 },
+  { text: "Me resulta difícil imaginar ser un personaje de ficción.", rev: false, cat: 3 },
+  { text: "Me gustan las fiestas y las reuniones sociales.", rev: true, cat: 0 },
+  { text: "No soy particularmente bueno/a recordando fechas de cumpleaños.", rev: true, cat: 4 },
+  { text: "Me resulta muy fácil jugar a juegos de roles con niños.", rev: true, cat: 3 },
+  { text: "Me resulta difícil seguir conversaciones de grupo.", rev: false, cat: 0 },
+  { text: "Disfruto conocer gente nueva.", rev: true, cat: 0 },
+  { text: "Soy un/a buen/a diplomático/a.", rev: true, cat: 0 },
+  { text: "No soy muy bueno/a para recordar los cumpleaños de la gente.", rev: true, cat: 4 },
+  { text: "Me resulta muy fácil jugar a juegos con niños que implican pretender cosas.", rev: true, cat: 3 },
+  { text: "Prefiero ir al teatro/cine antes que a un museo.", rev: true, cat: 3 },
+  { text: "Me resulta difícil imaginar cómo me vería desde afuera.", rev: false, cat: 3 },
+  { text: "Me resulta difícil integrarme a conversaciones grupales ya comenzadas.", rev: false, cat: 0 },
+  { text: "Me gusta seguir reglas y rutinas cuando hago las cosas.", rev: false, cat: 2 },
+];
+
+const CATS = ["Social", "Atención", "Rutinas", "Imaginación", "Datos"];
+const CAT_MAX = [0,0,0,0,0];
+AQ_QUESTIONS.forEach(q => CAT_MAX[q.cat]++);
+
+const OPTIONS = [
+  { label: "Totalmente de acuerdo", v: "ta" },
+  { label: "Poco de acuerdo", v: "pa" },
+  { label: "Poco en desacuerdo", v: "pd" },
+  { label: "Totalmente en desacuerdo", v: "td" },
+];
+
+function scoreAns(q, ans) {
+  const agree = ans === 'ta' || ans === 'pa';
+  return (!q.rev && agree) || (q.rev && !agree) ? 1 : 0;
+}
+
+// Normaliza cats a 20pts c/u → total sobre 100
+function normalizeCats(cats) {
+  return cats.map((v, i) => Math.round((v / CAT_MAX[i]) * 20));
+}
+function normalizedTotal(cats) {
+  return normalizeCats(cats).reduce((a,b) => a+b, 0);
+}
+
+function getTag(s) {
+  // s ahora es sobre 100
+  if (s >= 65) return { label: "Muy alto", cls: "tag-high", badge: "badge-high" };
+  if (s >= 40) return { label: "Moderado", cls: "tag-mid", badge: "badge-mid" };
+  return { label: "Bajo", cls: "tag-low", badge: "badge-low" };
+}
+function getDesc(s) {
+  // s es sobre 100 (normalizado, 20pts por área)
+  if (s >= 65) return "Tu puntaje normalizado es muy alto. Presentas rasgos significativos del espectro autista en múltiples áreas. Esto no es un diagnóstico, pero sería interesante hablar con un especialista.";
+  if (s >= 52) return "Tu puntaje está por encima del promedio de la población general. Algunos rasgos del espectro autista pueden estar presentes en varias áreas.";
+  if (s >= 40) return "Puntaje en zona media. Tienes algunos rasgos comunes distribuidos en varias áreas, como la mayoría de las personas.";
+  return "Puntaje bajo. Presentas pocos rasgos autistas de manera uniforme entre las distintas áreas.";
+}
+
+function getAutismPct(score) {
+  // score es sobre 100 (normalizado)
+  if (score <= 0) return 2;
+  if (score >= 100) return 99;
+  if (score < 65) return Math.round(2 + (score / 65) * 78);
+  return Math.round(80 + ((score - 65) / 35) * 19);
+}
+
+const CAT_INFO = [
+  {
+    name: "Social", icon: "👥",
+    desc: (v, max) => {
+      const p = Math.round((v/max)*100);
+      if (p >= 75) return "Tienes muchas dificultades en situaciones sociales. Te cuesta leer el ambiente, seguir conversaciones grupales y entender señales no verbales.";
+      if (p >= 50) return "Algunas situaciones sociales te resultan confusas o agotadoras. Puedes manejarte, pero requiere esfuerzo.";
+      if (p >= 25) return "Te desenvuelves bien socialmente aunque a veces puedes perderte alguna señal social.";
+      return "Las habilidades sociales son tu fuerte. Lees bien a las personas y las situaciones.";
+    }
+  },
+  {
+    name: "Atención", icon: "🔍",
+    desc: (v, max) => {
+      const p = Math.round((v/max)*100);
+      if (p >= 75) return "Eres extremadamente detallista. Notas cosas que otros ignoran — sonidos, patrones, datos numéricos.";
+      if (p >= 50) return "Tienes buena atención al detalle. Sueles notar patrones más que el promedio.";
+      if (p >= 25) return "Equilibrio entre el detalle y el panorama general.";
+      return "Prefieres ver el panorama general antes que los detalles específicos.";
+    }
+  },
+  {
+    name: "Rutinas", icon: "🔄",
+    desc: (v, max) => {
+      const p = Math.round((v/max)*100);
+      if (p >= 75) return "Las rutinas son muy importantes para ti. Los cambios inesperados te generan incomodidad o estrés.";
+      if (p >= 50) return "Prefieres cierto orden y predictibilidad, aunque puedes adaptarte.";
+      if (p >= 25) return "Puedes seguir rutinas pero también disfrutas de la espontaneidad.";
+      return "Eres muy flexible y espontáneo/a. Los cambios no te afectan.";
+    }
+  },
+  {
+    name: "Imaginación", icon: "💭",
+    desc: (v, max) => {
+      const p = Math.round((v/max)*100);
+      if (p >= 75) return "Te cuesta imaginar situaciones hipotéticas, ponerte en el lugar de otros o visualizar personajes ficticios.";
+      if (p >= 50) return "Tu imaginación social es moderada. Algunas situaciones hipotéticas te cuestan más.";
+      if (p >= 25) return "Puedes imaginar bien situaciones y personajes con cierto esfuerzo.";
+      return "Tienes mucha imaginación. Visualizas fácilmente situaciones y perspectivas ajenas.";
+    }
+  },
+  {
+    name: "Datos", icon: "🔢",
+    desc: (v, max) => {
+      const p = Math.round((v/max)*100);
+      if (p >= 75) return "Tienes una fuerte tendencia a memorizar y coleccionar datos, fechas, números y categorías.";
+      if (p >= 50) return "Sueles recordar datos numéricos con más facilidad que el promedio.";
+      if (p >= 25) return "Recuerdas algunos datos pero no domina tu forma de procesar el mundo.";
+      return "No eres especialmente aficionado/a a coleccionar o memorizar datos y números.";
+    }
+  }
+];
+
+let st = { screen: 'login', tab: 'login', user: null, result: null, ans: {}, q: 0 };
+let chartInst = null;
+
+function api(path, opts = {}) {
+  return fetch('/api' + path, {
+    headers: { 'Content-Type': 'application/json' },
+    ...opts,
+    body: opts.body ? JSON.stringify(opts.body) : undefined
+  }).then(r => r.json());
+}
+
+function render() {
+  const app = document.getElementById('app');
+  if (st.screen === 'login')   app.innerHTML = renderAuth();
+  else if (st.screen === 'test')    app.innerHTML = renderTest();
+  else if (st.screen === 'result') {
+    if (st.showMajorPrompt) { app.innerHTML = renderMajorPrompt(); return; }
+    app.innerHTML = renderResult(); setTimeout(drawChart, 60);
+  }
+  else if (st.screen === 'ranking') app.innerHTML = renderRanking();
+}
+
+/* ─── AUTH ─── */
+function renderAuth() {
+  return `<div class="card">
+    <h1>🧠 Test AQ-50</h1>
+    <p class="subtitle">El Cociente de Espectro Autista (Baron-Cohen et al., 2001). 50 preguntas sobre habilidades sociales, atención, comunicación e imaginación.<br><strong style="color:#534AB7">Solo puedes hacerlo una vez por cuenta.</strong></p>
+    <div class="tabs">
+      <div class="tab ${st.tab==='login'?'active':''}" onclick="sw('login')">Iniciar sesión</div>
+      <div class="tab ${st.tab==='register'?'active':''}" onclick="sw('register')">Registrarse</div>
+    </div>
+    ${st.tab==='login' ? `
+      <label>Correo universitario</label>
+      <input type="email" id="em" placeholder="nombre@universidad.edu" />
+      <label>Contraseña</label>
+      <input type="password" id="pw" placeholder="••••••••" />
+      <div id="err"></div>
+      <button class="btn" id="loginBtn" onclick="doLogin()">Entrar</button>
+    ` : `
+      <label>Nombre</label>
+      <input type="text" id="nm" placeholder="Tu nombre completo" />
+      <label>Correo universitario</label>
+      <input type="email" id="em" placeholder="nombre@universidad.edu" />
+      <label>Contraseña</label>
+      <input type="password" id="pw" placeholder="Mínimo 6 caracteres" />
+      <label>Carrera <span style="color:#bbb;font-weight:400;">(opcional)</span></label>
+      <input type="text" id="major" placeholder="Ej: Ingeniería en Sistemas, Medicina…" />
+      <div id="err"></div>
+      <button class="btn" id="regBtn" onclick="doRegister()">Crear cuenta y comenzar</button>
+    `}
+    <p style="font-size:11px;color:#ccc;margin-top:1rem;text-align:center;">Solo correos con dominio institucional</p>
+  </div>`;
+}
+
+async function doLogin() {
+  const em = val('em'), pw = val('pw');
+  setBtnLoad('loginBtn', true);
+  const res = await api('/login', { method: 'POST', body: { email: em, password: pw } });
+  setBtnLoad('loginBtn', false);
+  if (res.error) return showErr(res.error);
+  st.user = res.user;
+  st.result = res.result;
+  // Si no tiene carrera guardada, mostrar prompt opcional
+  if (!res.user.major && res.result) {
+    st.screen = 'result';
+    st.showMajorPrompt = true;
+  } else {
+    st.screen = res.result ? 'result' : 'test';
+  }
+  st.ans = {}; st.q = 0;
+  render();
+}
+
+async function doRegister() {
+  const nm = val('nm'), em = val('em'), pw = val('pw'), mj = val('major');
+  setBtnLoad('regBtn', true);
+  const res = await api('/register', { method: 'POST', body: { name: nm, email: em, password: pw, major: mj || null } });
+  setBtnLoad('regBtn', false);
+  if (res.error) return showErr(res.error);
+  st.user = res.user;
+  st.result = null;
+  st.ans = {}; st.q = 0; st.screen = 'test';
+  render();
+}
+
+/* ─── TEST ─── */
+function renderTest() {
+  const q = AQ_QUESTIONS[st.q];
+  const pct = Math.round((st.q / AQ_QUESTIONS.length) * 100);
+  const sel = st.ans[st.q];
+  return `<div class="card">
+    <div class="nav-bar">
+      <div class="nav-title">🧠 Test AQ-50</div>
+      <div class="logout-btn" onclick="logout()">✕ Salir</div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-top"><span>Pregunta ${st.q + 1} de ${AQ_QUESTIONS.length}</span><span>${pct}%</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+    </div>
+    <div class="q-num">Área: ${CATS[q.cat]}</div>
+    <div class="q-text">${q.text}</div>
+    <div class="options">
+      ${OPTIONS.map(o => `<div class="opt ${sel===o.v?'sel':''}" onclick="pick('${o.v}')">${o.label}</div>`).join('')}
+    </div>
+    <div class="btn-row" style="margin-top:1.25rem;">
+      ${st.q > 0 ? `<button class="btn btn-outline" onclick="prev()" style="flex:1">← Atrás</button>` : ''}
+      <button class="btn" id="nextBtn" onclick="next()" style="flex:2" ${!sel?'disabled':''}>
+        ${st.q === AQ_QUESTIONS.length - 1 ? 'Finalizar y ver resultado ✓' : 'Siguiente →'}
+      </button>
+    </div>
+  </div>`;
+}
+
+/* ─── MAJOR PROMPT ─── */
+function renderMajorPrompt() {
+  return `<div class="card" style="text-align:center;">
+    <div style="font-size:32px;margin-bottom:0.75rem;">🎓</div>
+    <h2>¡Hola de nuevo, ${st.user.name}!</h2>
+    <p style="font-size:13px;color:#888;margin-bottom:1.5rem;line-height:1.6;">
+      El test ahora incluye el campo de <strong>carrera</strong>.<br>
+      ¿Quieres agregar la tuya al ranking? Es opcional.
+    </p>
+    <label style="text-align:left;">Tu carrera</label>
+    <input type="text" id="majorInput" placeholder="Ej: Ingeniería en Sistemas, Medicina…" style="margin-bottom:0.5rem;" />
+    <button class="btn" onclick="saveMajor()">Guardar carrera</button>
+    <button class="btn btn-outline" onclick="skipMajor()" style="margin-top:0.5rem;">Omitir por ahora</button>
+  </div>`;
+}
+
+async function saveMajor() {
+  const major = (document.getElementById('majorInput')||{}).value?.trim();
+  if (major) {
+    await api('/update-major', { method: 'POST', body: { user_id: st.user.id, major } });
+    st.user.major = major;
+  }
+  st.showMajorPrompt = false;
+  st.screen = 'result';
+  render();
+}
+
+function skipMajor() {
+  st.showMajorPrompt = false;
+  st.screen = 'result';
+  render();
+}
+
+/* ─── RESULT ─── */
+function renderResult() {
+  const r = st.result;
+  if (!r) return '<div class="card"><p class="loading">Cargando resultado…</p></div>';
+  const normCats = normalizeCats(r.cats);
+  const normScore = normCats.reduce((a,b)=>a+b,0);
+  const tag = getTag(normScore);
+  const pct = getAutismPct(normScore);
+  const pctColor = pct >= 80 ? '#A32D2D' : pct >= 50 ? '#854F0B' : '#3B6D11';
+  return `<div class="card">
+    <div class="nav-bar">
+      <div class="nav-title">Tu resultado · ${st.user.name}</div>
+      <div class="logout-btn" onclick="logout()">✕ Salir</div>
+    </div>
+    <div class="result-big">
+      <div class="result-num">${normScore}<span class="result-denom">/100</span></div>
+      <div style="margin-top:6px;"><span class="result-tag ${tag.cls}">${tag.label}</span></div>
+    </div>
+    <div style="text-align:center;margin-bottom:1.25rem;">
+      <div style="font-size:12px;color:#aaa;margin-bottom:6px;">Índice normalizado de rasgos (cada área vale 20 pts)</div>
+      <div style="background:#f0ede6;border-radius:20px;height:14px;overflow:hidden;margin:0 auto;max-width:320px;">
+        <div style="height:100%;width:${pct}%;background:${pctColor};border-radius:20px;transition:width 1s ease;"></div>
+      </div>
+      <div style="font-size:28px;font-weight:700;color:${pctColor};margin-top:6px;">${pct}%</div>
+      <div style="font-size:11px;color:#bbb;">Solo orientativo · No es diagnóstico clínico 😄</div>
+    </div>
+    <div class="info-box">
+      <strong>¿Qué significa?</strong><br>${getDesc(normScore)}
+      <br><span style="font-size:11px;opacity:0.7;display:block;margin-top:6px;">Puntaje normalizado: cada área vale exactamente 20 pts sin importar cuántas preguntas tenga</span>
+    </div>
+    <h3>Análisis por área <span style="font-size:11px;font-weight:400;color:#bbb;">(normalizado a 20 pts c/u)</span></h3>
+    <div style="margin-bottom:1.25rem;">
+      ${CAT_INFO.map((cat,i) => {
+        const v = r.cats[i]; const max = CAT_MAX[i];
+        const normV = normCats[i];
+        const barPct = Math.round((normV/20)*100);
+        const barColor = barPct >= 75 ? '#E24B4A' : barPct >= 50 ? '#BA7517' : barPct >= 25 ? '#534AB7' : '#1D9E75';
+        return `<div style="margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <span style="font-size:13px;font-weight:500;color:#1a1a1a;">${cat.icon} ${cat.name}</span>
+            <span style="font-size:12px;color:#888;">${normV}/20 pts</span>
+          </div>
+          <div style="background:#f0ede6;border-radius:6px;height:8px;overflow:hidden;margin-bottom:5px;">
+            <div style="height:100%;width:${barPct}%;background:${barColor};border-radius:6px;"></div>
+          </div>
+          <div style="font-size:12px;color:#666;line-height:1.5;">${cat.desc(v, max)}</div>
+        </div>`;
+      }).join('')}
+    </div>
+    <h3>Gráfica radar</h3>
+    <div class="chart-wrap"><canvas id="myChart"></canvas></div>
+    <div class="divider"></div>
+    <button class="btn" onclick="loadRanking()">Ver ranking completo 🏅</button>
+    <p style="font-size:11px;color:#ccc;text-align:center;margin-top:1rem;">Este test es orientativo. No constituye diagnóstico clínico.</p>
+  </div>`;
+}
+
+function drawChart() {
+  const r = st.result;
+  const ctx = document.getElementById('myChart');
+  if (!ctx || !r) return;
+  if (chartInst) chartInst.destroy();
+  const normCatsChart = normalizeCats(r.cats);
+  chartInst = new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: CATS,
+      datasets: [{
+        label: st.user.name,
+        data: normCatsChart,
+        backgroundColor: 'rgba(83,74,183,0.15)',
+        borderColor: 'rgba(83,74,183,0.85)',
+        borderWidth: 2,
+        pointBackgroundColor: '#534AB7',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 5,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 0, max: Math.max(...CAT_MAX),
+          min: 0, max: 20,
+          ticks: { stepSize: 4, font: { size: 10 }, color: '#bbb', backdropColor: 'transparent' },
+          grid: { color: 'rgba(0,0,0,0.06)' },
+          angleLines: { color: 'rgba(0,0,0,0.06)' },
+          pointLabels: { font: { size: 12 }, color: '#555' }
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: c => ` ${c.raw} / ${CAT_MAX[c.dataIndex]}` } }
+      }
+    }
+  });
+}
+
+/* ─── RANKING ─── */
+async function loadRanking() {
+  document.getElementById('app').innerHTML = `<div class="card"><div class="loading"><span class="spinner"></span>Cargando ranking…</div></div>`;
+  const res = await api('/ranking');
+  if (res.error) { showGlobalErr(res.error); return; }
+  // Normalizar y reordenar una sola vez al cargar
+  st.ranking = res.ranking.map(s => ({
+    ...s,
+    normScore: s.cats ? normalizeCats(s.cats).reduce((a,b)=>a+b,0) : Math.round((s.score/50)*100)
+  })).sort((a,b) => b.normScore - a.normScore);
+  st.screen = 'ranking';
+  render();
+}
+
+function renderRanking() {
+  const all = st.ranking || [];
+  const myIdx = all.findIndex(s => s.name === st.user.name);
+  return `<div class="card">
+    <div class="nav-bar">
+      <h2 style="margin:0;">🏅 Ranking global</h2>
+      <div class="logout-btn" onclick="logout()">✕ Salir</div>
+    </div>
+    <p style="font-size:13px;color:#bbb;margin-bottom:0.25rem;">${all.length} ${all.length===1?'persona ha':'personas han'} completado el test</p>
+    <p style="font-size:11px;color:#ddd;margin-bottom:1rem;">Toca un nombre para ver su gráfica 👆</p>
+    ${all.length === 0 ? '<p style="color:#ddd;text-align:center;padding:2rem 0;">Nadie ha hecho el test aún</p>' :
+      all.map((s, i) => {
+        const tag = getTag(s.normScore);
+        const isMe = i === myIdx;
+        const posCls = i===0?'gold':i===1?'silver':i===2?'bronze':'';
+        const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1);
+        return `<div class="rank-row clickable ${isMe?'me':''}" onclick="showProfile(${i})">
+          <div class="rank-pos ${posCls}">${medal}</div>
+          <div class="rank-info">
+            <div class="rank-name">${s.name}${isMe?'<span class="me-tag">← tú</span>':''}</div>
+            <div class="rank-domain">${s.major ? s.major + ' · ' : ''}@${s.domain}</div>
+          </div>
+          <div class="rank-right">
+            <div class="rank-score">${s.normScore}<span style="font-size:11px;color:#ccc;">/100</span></div>
+            <span class="rank-badge ${tag.badge}">${tag.label}</span>
+          </div>
+        </div>`;
+      }).join('')}
+    <button class="btn btn-outline" onclick="backToResult()" style="margin-top:1rem;">← Mi resultado</button>
+  </div>`;
+}
+
+let profileChart = null;
+function showProfile(idx) {
+  const s = (st.ranking || [])[idx];
+  if (!s || !s.cats) return;
+  const sNorm = s.normScore !== undefined ? s.normScore : (s.cats ? normalizeCats(s.cats).reduce((a,b)=>a+b,0) : Math.round((s.score/50)*100));
+  const tag = getTag(sNorm);
+  const old = document.getElementById('profile-modal');
+  if (old) old.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'profile-modal';
+  modal.className = 'modal-overlay';
+  modal.innerHTML = `
+    <div class="modal-box">
+      <div class="modal-header">
+        <div>
+          <div style="font-size:15px;font-weight:600;color:#1a1a1a;">${s.name}</div>
+          <div style="font-size:11px;color:#bbb;">${s.major ? s.major + ' · ' : ''}@${s.domain}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="text-align:right;">
+            <div style="font-size:22px;font-weight:700;color:#534AB7;">${sNorm}<span style="font-size:13px;color:#ccc;">/100</span></div>
+            <span class="rank-badge ${tag.badge}">${tag.label}</span>
+          </div>
+          <div class="modal-close" onclick="closeProfile()">✕</div>
+        </div>
+      </div>
+      <div style="margin:0.75rem 0;">
+        ${(() => {
+          const sNormCats = normalizeCats(s.cats);
+          const sNormTotal = sNormCats.reduce((a,b)=>a+b,0);
+          return CAT_INFO.map((cat,i) => {
+            const v = s.cats[i]; const max = CAT_MAX[i];
+            const normV = sNormCats[i];
+            const barPct = Math.round((normV/20)*100);
+            const barColor = barPct >= 75 ? '#E24B4A' : barPct >= 50 ? '#BA7517' : barPct >= 25 ? '#534AB7' : '#1D9E75';
+            return '<div style="margin-bottom:10px;">' +
+              '<div style="display:flex;justify-content:space-between;margin-bottom:3px;">' +
+                '<span style="font-size:12px;font-weight:500;color:#1a1a1a;">' + cat.icon + ' ' + cat.name + '</span>' +
+                '<span style="font-size:11px;color:#aaa;">' + normV + '/20 pts</span>' +
+              '</div>' +
+              '<div style="background:#f0ede6;border-radius:6px;height:7px;overflow:hidden;margin-bottom:4px;">' +
+                '<div style="height:100%;width:' + barPct + '%;background:' + barColor + ';border-radius:6px;"></div>' +
+              '</div>' +
+              '<div style="font-size:11px;color:#888;line-height:1.4;">' + cat.desc(v, max) + '</div>' +
+            '</div>';
+          }).join('') +
+          '<div style="text-align:center;margin-top:8px;padding:8px;background:#f5f3ff;border-radius:8px;">' +
+            '<span style="font-size:12px;color:#534AB7;font-weight:500;">Índice de rasgos: ' + getAutismPct(sNormTotal) + '%</span>' +
+            '<span style="font-size:11px;color:#bbb;"> · Solo orientativo 😄</span>' +
+          '</div>';
+        })()}
+      </div>
+      <div class="modal-chart-wrap"><canvas id="profileChart"></canvas></div>
+    </div>`;
+
+  modal.addEventListener('click', e => { if (e.target === modal) closeProfile(); });
+  document.body.appendChild(modal);
+
+  setTimeout(() => {
+    const ctx = document.getElementById('profileChart');
+    if (!ctx) return;
+    if (profileChart) profileChart.destroy();
+    profileChart = new Chart(ctx, {
+      type: 'radar',
+      data: {
+        labels: CATS,
+        datasets: [{
+          label: s.name,
+          data: normalizeCats(s.cats),
+          backgroundColor: 'rgba(83,74,183,0.15)',
+          borderColor: 'rgba(83,74,183,0.85)',
+          borderWidth: 2,
+          pointBackgroundColor: '#534AB7',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+          pointRadius: 4,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        layout: { padding: { top: 10, bottom: 10, left: 10, right: 10 } },
+        scales: {
+          r: {
+            min: 0, max: Math.max(...CAT_MAX),
+            min: 0, max: 20,
+            ticks: { stepSize: 4, font: { size: 9 }, color: '#bbb', backdropColor: 'transparent', maxTicksLimit: 4 },
+            grid: { color: 'rgba(0,0,0,0.06)' },
+            angleLines: { color: 'rgba(0,0,0,0.08)' },
+            pointLabels: { font: { size: 12, weight: '500' }, color: '#444', padding: 8 }
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: c => ` ${c.raw} / ${CAT_MAX[c.dataIndex]}` } }
+        }
+      }
+    });
+  }, 50);
+}
+
+function closeProfile() {
+  const modal = document.getElementById('profile-modal');
+  if (modal) modal.remove();
+  if (profileChart) { profileChart.destroy(); profileChart = null; }
+}
+
+/* ─── HELPERS ─── */
+function sw(t) { st.tab = t; render(); }
+function pick(v) { st.ans[st.q] = v; render(); }
+function prev() { if (st.q > 0) { st.q--; render(); } }
+function next() {
+  if (!st.ans[st.q]) return;
+  if (st.q < AQ_QUESTIONS.length - 1) { st.q++; render(); }
+  else submit();
+}
+
+async function submit() {
+  let total = 0; const cats = [0,0,0,0,0];
+  AQ_QUESTIONS.forEach((q, i) => {
+    const pts = scoreAns(q, st.ans[i] || 'td');
+    total += pts; cats[q.cat] += pts;
+  });
+  document.getElementById('app').innerHTML = `<div class="card"><div class="loading"><span class="spinner"></span>Guardando resultado…</div></div>`;
+  const res = await api('/submit', { method: 'POST', body: { user_id: st.user.id, score: total, cats } });
+  if (res.error) { showGlobalErr(res.error); return; }
+  st.result = { score: total, cats };
+  st.screen = 'result';
+  render();
+}
+
+function backToResult() { st.screen = 'result'; render(); setTimeout(drawChart, 60); }
+function logout() { st = { screen:'login', tab:'login', user:null, result:null, ans:{}, q:0 }; render(); }
+function val(id) { return (document.getElementById(id)||{}).value?.trim() || ''; }
+function showErr(msg) { const el = document.getElementById('err'); if (el) el.innerHTML = `<div class="error">${msg}</div>`; }
+function showGlobalErr(msg) { document.getElementById('app').innerHTML = `<div class="card"><div class="error">${msg}</div><button class="btn btn-outline" onclick="render()" style="margin-top:1rem;">← Volver</button></div>`; }
+function setBtnLoad(id, loading) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.disabled = loading;
+  el.innerHTML = loading ? '<span class="spinner"></span>Cargando…' : el.innerHTML;
+}
+
+render();
+
+/* easter eggs */
+// ── Imágenes ──────────────────────────────────────────────────────
+const EGG_IMGS = {
+  toga:  'https://i.pinimg.com/736x/ff/15/c4/ff15c4ad9900f0f5313f69077737db18.jpg',
+  miku:  'https://i.pinimg.com/736x/2b/4a/68/2b4a687a6dc22912342c9e9dae2f1d1c.jpg',
+  teto:  'https://i.pinimg.com/736x/32/63/b9/3263b9f0b19bbe0325bd901f19a2df15.jpg',
+  mid:   'https://i.pinimg.com/736x/7e/a9/de/7ea9debe7ce24f24f62c295a1048f121.jpg',
+  low:   'https://i.pinimg.com/736x/be/87/90/be879008fb3e8655779e7c16b24bc2df.jpg',
+};
+
+// ── Overlay helper ───────────────────────────────────────────────
+function showOverlay({ img, emoji, msg, duration = 3000, shake = false, rain = false }) {
+  const old = document.getElementById('egg-overlay');
+  if (old) old.remove();
+  const div = document.createElement('div');
+  div.id = 'egg-overlay';
+  div.style.cssText = `position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;background:rgba(0,0,0,0.55);animation:eggFadeIn 0.3s ease;`;
+  if (rain) spawnRain(div);
+  const box = document.createElement('div');
+  box.style.cssText = `background:#fff;border-radius:20px;padding:1.5rem 2rem;text-align:center;max-width:320px;animation:eggPop 0.4s cubic-bezier(.175,.885,.32,1.275);${shake?'animation:eggPop 0.4s cubic-bezier(.175,.885,.32,1.275),eggShake 0.5s 0.4s ease;':''}`;
+  if (img) {
+    const i = document.createElement('img');
+    i.src = img;
+    i.style.cssText = 'width:180px;height:180px;object-fit:contain;display:block;margin:0 auto 0.75rem;';
+    i.onerror = () => { i.style.display='none'; };
+    box.appendChild(i);
+  }
+  if (emoji) {
+    const e = document.createElement('div');
+    e.style.cssText = 'font-size:64px;margin-bottom:0.5rem;';
+    e.textContent = emoji;
+    box.appendChild(e);
+  }
+  const p = document.createElement('p');
+  p.style.cssText = 'font-size:15px;color:#1a1a1a;font-weight:500;margin:0;line-height:1.5;';
+  p.innerHTML = msg;
+  box.appendChild(p);
+  div.appendChild(box);
+  document.body.appendChild(div);
+  setTimeout(() => { div.style.animation = 'eggFadeOut 0.3s ease forwards'; setTimeout(() => div.remove(), 300); }, duration);
+}
+
+function spawnRain(container) {
+  const chars = ['🧠','✨','💜','🎵','⭐','🌸'];
+  for (let i = 0; i < 30; i++) {
+    const s = document.createElement('span');
+    s.textContent = chars[Math.floor(Math.random() * chars.length)];
+    s.style.cssText = `position:absolute;font-size:${Math.random()*20+16}px;left:${Math.random()*100}%;top:-40px;animation:eggRain ${Math.random()*2+1.5}s linear ${Math.random()*2}s forwards;opacity:0.9;`;
+    container.appendChild(s);
+  }
+}
+
+// ── CSS animaciones ──────────────────────────────────────────────
+const eggStyle = document.createElement('style');
+eggStyle.textContent = `
+  @keyframes eggFadeIn  { from{opacity:0} to{opacity:1} }
+  @keyframes eggFadeOut { from{opacity:1} to{opacity:0} }
+  @keyframes eggPop     { from{transform:scale(0.5);opacity:0} to{transform:scale(1);opacity:1} }
+  @keyframes eggShake   { 0%,100%{transform:rotate(0deg)} 20%{transform:rotate(-8deg)} 40%{transform:rotate(8deg)} 60%{transform:rotate(-5deg)} 80%{transform:rotate(5deg)} }
+  @keyframes eggRain    { from{transform:translateY(0) rotate(0deg);opacity:1} to{transform:translateY(110vh) rotate(720deg);opacity:0} }
+`;
+document.head.appendChild(eggStyle);
+
+// ── 1. RESULTADO → imagen según puntaje (UN SOLO bloque) ─────────
+const _origRender = render;
+function renderWithEgg() {
+  _origRender();
+  if (st.screen === 'result' && st.result) {
+    const score = normalizedTotal(st.result.cats);
+    setTimeout(() => {
+      if (score >= 65) {
+        showOverlay({ img: EGG_IMGS.toga, msg: '¡Felicidades!<br><small style="color:#aaa">Puntaje ≥32 desbloqueado</small>', duration: 4000, shake: true });
+      } else if (score >= 40) {
+        showOverlay({ img: EGG_IMGS.mid, emoji: '🌸', msg: '¡Ahí vas!<br><small style="color:#aaa">Puntaje moderado</small>', duration: 4000 });
+      } else {
+        showOverlay({ img: EGG_IMGS.low, emoji: '💡', msg: '¡Eres Normal!<br><small style="color:#aaa">Felicidades</small>', duration: 4000 });
+      }
+    }, 800);
+  }
+}
+window.render = renderWithEgg;
+
+async function submit() {
+  let total = 0; const cats = [0,0,0,0,0];
+  AQ_QUESTIONS.forEach((q, i) => {
+    const pts = scoreAns(q, st.ans[i] || 'td');
+    total += pts; cats[q.cat] += pts;
+  });
+  document.getElementById('app').innerHTML = `<div class="card"><div class="loading"><span class="spinner"></span>Guardando resultado…</div></div>`;
+  const res = await api('/submit', { method: 'POST', body: { user_id: st.user.id, score: total, cats } });
+  if (res.error) { showGlobalErr(res.error); return; }
+  st.result = { score: total, cats };
+  st.screen = 'result';
+  renderWithEgg();
+}
+
+// ── 2. CLICK SECRETO EN EL LOGO 🧠 (5 veces rápido) ────────────
+let logoClicks = 0, logoTimer = null;
+document.addEventListener('click', (e) => {
+  if (e.target.textContent?.includes('🧠') || e.target.closest?.('[data-logo]')) {
+    logoClicks++;
+    clearTimeout(logoTimer);
+    logoTimer = setTimeout(() => { logoClicks = 0; }, 1500);
+    if (logoClicks >= 5) {
+      logoClicks = 0;
+      showOverlay({ img: EGG_IMGS.teto, msg: 'Kasane Teto dice: <em>"Que andas presionando cosas que no son, ponte a hacer el test."</em>', duration: 3500 });
+    }
+  }
+});
+
+// ── 3. KONAMI CODE ────────────────────────────────────────────────
+const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+let konamiIdx = 0;
+document.addEventListener('keydown', (e) => {
+  if (e.key === KONAMI[konamiIdx]) {
+    konamiIdx++;
+    if (konamiIdx === KONAMI.length) {
+      konamiIdx = 0;
+      showOverlay({ img: EGG_IMGS.miku, emoji: '😧', msg: '↑↑↓↓←→←→<br><strong>¡Buuuuuah que pro eres!</strong>', duration: 4500, rain: true });
+    }
+  } else {
+    konamiIdx = e.key === KONAMI[0] ? 1 : 0;
+  }
+});
+
+
+</script>
+</body>
+</html>
