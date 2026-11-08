@@ -275,7 +275,7 @@ function render() {
 /* ─── AUTH ─── */
 function renderAuth() {
   return `<div class="card">
-    <h1>🧠 Test AQ-50</h1>
+    <h1>Test AQ-50</h1>
     <p class="subtitle">El Cociente de Espectro Autista (Baron-Cohen et al., 2001). 50 preguntas sobre habilidades sociales, atención, comunicación e imaginación.<br><strong style="color:#534AB7">Solo puedes hacerlo una vez por cuenta.</strong></p>
     <div class="tabs">
       <div class="tab ${st.tab==='login'?'active':''}" onclick="sw('login')">Iniciar sesión</div>
@@ -342,8 +342,8 @@ function renderTest() {
   const sel = st.ans[st.q];
   return `<div class="card">
     <div class="nav-bar">
-      <div class="nav-title">🧠 Test AQ-50</div>
-      <div class="logout-btn" onclick="logout()">✕ Salir</div>
+      <div class="nav-title">Test AQ-50</div>
+      <div class="logout-btn" onclick="logout()">Salir</div>
     </div>
     <div class="progress-wrap">
       <div class="progress-top"><span>Pregunta ${st.q + 1} de ${AQ_QUESTIONS.length}</span><span>${pct}%</span></div>
@@ -355,9 +355,9 @@ function renderTest() {
       ${OPTIONS.map(o => `<div class="opt ${sel===o.v?'sel':''}" onclick="pick('${o.v}')">${o.label}</div>`).join('')}
     </div>
     <div class="btn-row" style="margin-top:1.25rem;">
-      ${st.q > 0 ? `<button class="btn btn-outline" onclick="prev()" style="flex:1">← Atrás</button>` : ''}
+      ${st.q > 0 ? `<button class="btn btn-outline" onclick="prev()" style="flex:1">Atrás</button>` : ''}
       <button class="btn" id="nextBtn" onclick="next()" style="flex:2" ${!sel?'disabled':''}>
-        ${st.q === AQ_QUESTIONS.length - 1 ? 'Finalizar y ver resultado ✓' : 'Siguiente →'}
+        ${st.q === AQ_QUESTIONS.length - 1 ? 'Finalizar y ver resultado' : 'Siguiente'}
       </button>
     </div>
   </div>`;
@@ -366,7 +366,7 @@ function renderTest() {
 /* ─── MAJOR PROMPT ─── */
 function renderMajorPrompt() {
   return `<div class="card" style="text-align:center;">
-    <div style="font-size:32px;margin-bottom:0.75rem;">🎓</div>
+
     <h2>¡Hola de nuevo, ${st.user.name}!</h2>
     <p style="font-size:13px;color:#888;margin-bottom:1.5rem;line-height:1.6;">
       El test ahora incluye el campo de <strong>carrera</strong>.<br>
@@ -408,7 +408,7 @@ function renderResult() {
   return `<div class="card">
     <div class="nav-bar">
       <div class="nav-title">Tu resultado · ${st.user.name}</div>
-      <div class="logout-btn" onclick="logout()">✕ Salir</div>
+      <div class="logout-btn" onclick="logout()">Salir</div>
     </div>
     <div class="result-big">
       <div class="result-num">${normScore}<span class="result-denom">/100</span></div>
@@ -420,7 +420,7 @@ function renderResult() {
         <div style="height:100%;width:${pct}%;background:${pctColor};border-radius:20px;transition:width 1s ease;"></div>
       </div>
       <div style="font-size:28px;font-weight:700;color:${pctColor};margin-top:6px;">${pct}%</div>
-      <div style="font-size:11px;color:#bbb;">Solo orientativo · No es diagnóstico clínico 😄</div>
+      <div style="font-size:11px;color:#bbb;">Solo orientativo · No es diagnóstico clínico</div>
     </div>
     <div class="info-box">
       <strong>¿Qué significa?</strong><br>${getDesc(normScore)}
@@ -448,7 +448,7 @@ function renderResult() {
     <h3>Gráfica radar</h3>
     <div class="chart-wrap"><canvas id="myChart"></canvas></div>
     <div class="divider"></div>
-    <button class="btn" onclick="loadRanking()">Ver ranking completo 🏅</button>
+    <button class="btn" onclick="loadRanking()">Ver ranking completo</button>
     <p style="font-size:11px;color:#ccc;text-align:center;margin-top:1rem;">Este test es orientativo. No constituye diagnóstico clínico.</p>
   </div>`;
 }
@@ -514,8 +514,8 @@ function renderRanking() {
   const myIdx = all.findIndex(s => s.name === st.user.name);
   return `<div class="card">
     <div class="nav-bar">
-      <h2 style="margin:0;">🏅 Ranking global</h2>
-      <div class="logout-btn" onclick="logout()">✕ Salir</div>
+      <h2 style="margin:0;">Ranking global</h2>
+      <div class="logout-btn" onclick="logout()">Salir</div>
     </div>
     <p style="font-size:13px;color:#bbb;margin-bottom:0.25rem;">${all.length} ${all.length===1?'persona ha':'personas han'} completado el test</p>
     <p style="font-size:11px;color:#ddd;margin-bottom:1rem;">Toca un nombre para ver su gráfica 👆</p>
@@ -524,11 +524,11 @@ function renderRanking() {
         const tag = getTag(s.normScore);
         const isMe = i === myIdx;
         const posCls = i===0?'gold':i===1?'silver':i===2?'bronze':'';
-        const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1);
+        const medal = i===0?'1':i===1?'2':i===2?'3':'#'+(i+1);
         return `<div class="rank-row clickable ${isMe?'me':''}" onclick="showProfile(${i})">
           <div class="rank-pos ${posCls}">${medal}</div>
           <div class="rank-info">
-            <div class="rank-name">${s.name}${isMe?'<span class="me-tag">← tú</span>':''}</div>
+            <div class="rank-name">${s.name}${isMe?'<span class="me-tag">tú</span>':''}</div>
             <div class="rank-domain">${s.major ? s.major + ' · ' : ''}@${s.domain}</div>
           </div>
           <div class="rank-right">
@@ -537,7 +537,7 @@ function renderRanking() {
           </div>
         </div>`;
       }).join('')}
-    <button class="btn btn-outline" onclick="backToResult()" style="margin-top:1rem;">← Mi resultado</button>
+    <button class="btn btn-outline" onclick="backToResult()" style="margin-top:1rem;">Mi resultado</button>
   </div>`;
 }
 
@@ -565,7 +565,7 @@ function showProfile(idx) {
             <div style="font-size:22px;font-weight:700;color:#534AB7;">${sNorm}<span style="font-size:13px;color:#ccc;">/100</span></div>
             <span class="rank-badge ${tag.badge}">${tag.label}</span>
           </div>
-          <div class="modal-close" onclick="closeProfile()">✕</div>
+          <div class="modal-close" onclick="closeProfile()">X</div>
         </div>
       </div>
       <div style="margin:0.75rem 0;">
@@ -590,7 +590,7 @@ function showProfile(idx) {
           }).join('') +
           '<div style="text-align:center;margin-top:8px;padding:8px;background:#f5f3ff;border-radius:8px;">' +
             '<span style="font-size:12px;color:#534AB7;font-weight:500;">Índice de rasgos: ' + getAutismPct(sNormTotal) + '%</span>' +
-            '<span style="font-size:11px;color:#bbb;"> · Solo orientativo 😄</span>' +
+            '<span style="font-size:11px;color:#bbb;"> · Solo orientativo</span>' +
           '</div>';
         })()}
       </div>
@@ -676,7 +676,7 @@ function backToResult() { st.screen = 'result'; render(); setTimeout(drawChart, 
 function logout() { st = { screen:'login', tab:'login', user:null, result:null, ans:{}, q:0 }; render(); }
 function val(id) { return (document.getElementById(id)||{}).value?.trim() || ''; }
 function showErr(msg) { const el = document.getElementById('err'); if (el) el.innerHTML = `<div class="error">${msg}</div>`; }
-function showGlobalErr(msg) { document.getElementById('app').innerHTML = `<div class="card"><div class="error">${msg}</div><button class="btn btn-outline" onclick="render()" style="margin-top:1rem;">← Volver</button></div>`; }
+function showGlobalErr(msg) { document.getElementById('app').innerHTML = `<div class="card"><div class="error">${msg}</div><button class="btn btn-outline" onclick="render()" style="margin-top:1rem;">Volver</button></div>`; }
 function setBtnLoad(id, loading) {
   const el = document.getElementById(id);
   if (!el) return;

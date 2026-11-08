@@ -1,68 +1,62 @@
-# 🧠 Test AQ-50 Universitario
+# Test AQ-50 Universitario
 
-> Cuestionario de Espectro Autista (Baron-Cohen et al., 2001) — 50 preguntas sobre habilidades sociales, atención, comunicación e imaginación. Con ranking global, gráfica radar y un solo intento por cuenta.
+Cuestionario de Espectro Autista (Baron-Cohen et al., 2001) — 50 preguntas sobre habilidades sociales, atención, comunicación e imaginación. Con ranking global, gráfica radar y un solo intento por cuenta.
 
-![Vercel](https://img.shields.io/badge/Hosted%20on-Vercel-black?logo=vercel)
-![Supabase](https://img.shields.io/badge/Database-Supabase-3ECF8E?logo=supabase)
-![JavaScript](https://img.shields.io/badge/Language-JavaScript-F7DF1E?logo=javascript)
-![License](https://img.shields.io/badge/License-MIT-purple)
-
----
-
-## ⚠️ Aviso importante sobre el ranking
-
-> **El ranking de puntajes es una broma entre amigos, no una competencia real.**
->
-> Esta app nació como un chiste universitario — nada más. Tener un puntaje alto **no significa** que tengas autismo, y tener uno bajo **no significa** que seas más "normal" que nadie. El espectro autista es un tema serio que merece respeto.
->
-> Si tu resultado te genera curiosidad o preocupación, habla con un profesional de salud mental. Este test **no es un diagnóstico clínico**.
-
-<div align="center">
-       <img width="600" height="450" alt="image" src="https://github.com/user-attachments/assets/eb9d9f54-026e-4347-a372-9e9c30eeb657" />
-</div>
+[![Vercel](https://img.shields.io/badge/Hosted%20on-Vercel-black?logo=vercel)](https://vercel.com)
+[![Supabase](https://img.shields.io/badge/Database-Supabase-3ECF8E?logo=supabase)](https://supabase.com)
+[![JavaScript](https://img.shields.io/badge/Language-JavaScript-F7DF1E?logo=javascript)](https://developer.mozilla.org)
+[![License](https://img.shields.io/badge/License-MIT-purple)](LICENSE)
 
 ---
 
-## ✨ Características
+## Aviso importante sobre el ranking
 
-- 🔐 Registro con correo universitario + contraseña segura
-- 📝 Test AQ-50 completo con las 50 preguntas oficiales
-- 🔒 **Un solo intento por cuenta** — sin trampas
-- 📊 Gráfica radar con resultados por área al finalizar
-- 🏅 Ranking global ordenado por puntaje
-- 🛡️ Seguridad: rate limiting, RLS, hash con salt, headers HTTP
+El ranking de puntajes es una referencia interna entre usuarios, no una competencia real.
+
+Esta aplicación nace como un proyecto universitario. Tener un puntaje alto **no significa** que se tenga autismo, y tener uno bajo **no significa** ser más "normal" que nadie. El espectro autista es un tema serio que merece respeto.
+
+Si un resultado genera curiosidad o preocupación, se recomienda hablar con un profesional de salud mental. Este test **no es un diagnóstico clínico**.
 
 ---
 
-## 🏗️ Cómo está construido
+## Características
 
-### Arquitectura general
+- Registro con correo universitario y contraseña segura
+- Test AQ-50 completo con las 50 preguntas oficiales
+- Un solo intento por cuenta, sin posibilidad de repetir
+- Gráfica radar con resultados por área al finalizar
+- Ranking global ordenado por puntaje
+- Seguridad: rate limiting, RLS, hash con salt, cabeceras HTTP
 
-```
+---
+
+## Arquitectura
+
+```text
 Usuario (Navegador)
-       │
-       ▼
-  index.html          ← SPA: toda la UI en un solo archivo HTML + JS vanilla
-       │
-       ▼
-  Vercel (Edge)       ← Hosting estático + API serverless
-       │
-  ┌────┴────┐
-  │  /api   │         ← 4 funciones serverless en Node.js
-  └────┬────┘
-       │
-       ▼
-  Supabase            ← PostgreSQL como base de datos
+       |
+       v
+  index.html      SPA: interfaz en un solo archivo HTML + JavaScript vanilla
+       |
+       v
+  Vercel (Edge)   Hosting estático + funciones serverless
+       |
+   +----+----+
+   |  /api   |  4 funciones serverless en Node.js
+   +----+----+
+        |
+        v
+  Supabase        PostgreSQL como base de datos
   (PostgreSQL)
 ```
 
 ### Frontend
 
-- **Tecnología:** HTML + CSS + JavaScript vanilla (sin frameworks)
-- **Una sola página (SPA):** toda la app vive en `public/index.html`
-- **Renderizado:** el JS manipula el DOM directamente con `innerHTML` — sin React, sin Vue
-- **Gráfica:** [Chart.js 4.4.1](https://chartjs.org) cargado desde CDN para la gráfica radar de resultados
-- **Sin dependencias de frontend:** no hay `node_modules`, no hay bundler, carga instantánea
+- Tecnología: HTML, CSS y JavaScript vanilla (sin frameworks)
+- Una sola página (SPA): toda la aplicación vive en `public/index.html`
+- Renderizado: manipulación directa del DOM con JavaScript
+- Gráfica: Chart.js 4.4.1 cargado desde CDN para la gráfica radar
+- Sin dependencias de frontend: no hay `node_modules`, no hay bundler
 
 ### Backend (API serverless)
 
@@ -70,23 +64,24 @@ Vercel ejecuta cada archivo de `/api/` como una función serverless independient
 
 | Archivo | Método | Descripción |
 |---------|--------|-------------|
-| `api/register.js` | POST | Crea una nueva cuenta con email y contraseña hasheada |
+| `api/register.js` | POST | Crea una cuenta con correo y contraseña hasheada |
 | `api/login.js` | POST | Autentica al usuario y devuelve su resultado si ya hizo el test |
 | `api/submit.js` | POST | Guarda el resultado del test (bloqueado si ya existe uno) |
 | `api/ranking.js` | GET | Devuelve el ranking global ordenado por puntaje |
+| `api/update-major.js` | POST | Actualiza la carrera universitaria del usuario |
 
 ### Base de datos
 
-Supabase provee una base de datos **PostgreSQL** con dos tablas:
+Supabase provee una base de datos PostgreSQL con dos tablas:
 
 ```sql
 -- Almacena los usuarios registrados
 users (
   id uuid PRIMARY KEY,
   name text,
-  email text UNIQUE,     -- un correo = una cuenta
-  password_hash text,    -- hash con 10,000 iteraciones + salt
-  salt text,             -- único por usuario
+  email text UNIQUE,
+  password_hash text,
+  salt text,
   created_at timestamptz
 )
 
@@ -94,43 +89,33 @@ users (
 results (
   id uuid PRIMARY KEY,
   user_id uuid REFERENCES users(id),
-  score integer,         -- puntaje total (0-50)
-  cats integer[],        -- array con puntaje por cada una de las 5 áreas
+  score integer,
+  cats integer[],
   created_at timestamptz,
-  UNIQUE(user_id)        -- garantiza 1 solo resultado por usuario
+  UNIQUE(user_id)
 )
 ```
 
-### Flujo completo de la app
+### Flujo completo de la aplicación
 
-```
-1. Usuario se registra
-        │
-        ▼
-   register.js valida email, hashea contraseña con salt, guarda en users
-        │
-        ▼
-2. Usuario hace el test (50 preguntas, solo en el frontend)
-        │
-        ▼
-3. Al finalizar → submit.js calcula puntaje y guarda en results
-   (si ya existe un resultado para ese user_id, lo rechaza → 1 intento)
-        │
-        ▼
-4. Se muestra resultado + gráfica radar (Chart.js)
-        │
-        ▼
-5. Usuario puede ver el ranking → ranking.js devuelve todos los resultados
-   ordenados por score DESC
-```
+1. El usuario se registra
+2. `register.js` valida el correo, hashea la contraseña con salt y guarda en `users`
+3. El usuario realiza el test (50 preguntas, solo en el frontend)
+4. Al finalizar, `submit.js` calcula el puntaje y lo guarda en `results` (si ya existe un resultado para ese usuario, lo rechaza: un solo intento)
+5. Se muestra el resultado con la gráfica radar (Chart.js)
+6. El usuario puede ver el ranking: `ranking.js` devuelve todos los resultados ordenados por puntaje descendente
 
-### Puntuación del AQ-50
+---
+
+## Puntuación del AQ-50
 
 Cada pregunta tiene una dirección (`rev: true/false`):
-- Preguntas normales: puntúan 1 si el usuario **está de acuerdo**
-- Preguntas invertidas (`rev: true`): puntúan 1 si el usuario **está en desacuerdo**
 
-Las preguntas se agrupan en 5 áreas:
+- Preguntas normales: puntúan 1 si el usuario está de acuerdo
+- Preguntas invertidas (`rev: true`): puntúan 1 si el usuario está en desacuerdo
+
+Las preguntas se agrupan en cinco áreas:
+
 | # | Área | Descripción |
 |---|------|-------------|
 | 0 | Social | Habilidades e interés social |
@@ -141,11 +126,11 @@ Las preguntas se agrupan en 5 áreas:
 
 ---
 
-## 🚀 Cómo desplegarlo (gratis)
+## Despliegue (gratis)
 
 ### Paso 1 — Base de datos en Supabase
 
-1. Crea una cuenta en [supabase.com](https://supabase.com) con GitHub
+1. Crea una cuenta en [supabase.com](https://supabase.com)
 2. Crea un nuevo proyecto (cualquier nombre, región US East)
 3. Ve a **SQL Editor → New query** y ejecuta:
 
@@ -180,54 +165,45 @@ create policy "Bloquear acceso publico results" on results for all using (false)
    - `Project URL` → tu `SUPABASE_URL`
    - `Secret key` (sb_secret_...) → tu `SUPABASE_SERVICE_KEY`
 
----
-
 ### Paso 2 — Subir a GitHub
 
 1. Crea un repositorio en [github.com](https://github.com)
-2. Sube el **contenido** de la carpeta `aq50-app/` a la raíz del repo
+2. Sube el contenido de la carpeta a la raíz del repositorio
 3. Verifica que se vean directamente: `api/`, `public/`, `package.json`, `vercel.json`
 
----
+### Paso 3 — Despliegue en Vercel
 
-### Paso 3 — Deploy en Vercel
-
-1. Crea una cuenta en [vercel.com](https://vercel.com) con GitHub
-2. Click en **Add New Project** → importa tu repo
-3. Agrega las **Environment Variables**:
+1. Crea una cuenta en [vercel.com](https://vercel.com)
+2. Clic en **Add New Project** e importa tu repositorio
+3. Agrega las **Variables de Entorno**:
 
 | Variable | Valor |
 |----------|-------|
 | `SUPABASE_URL` | Tu Project URL de Supabase |
 | `SUPABASE_SERVICE_KEY` | Tu secret key de Supabase |
 
-4. Click en **Deploy** 🚀
+4. Clic en **Desplegar**
 
 ---
 
-## 🔐 Seguridad implementada
+## Seguridad implementada
 
 - Contraseñas hasheadas con 10,000 iteraciones SHA-256 + salt único por usuario
-- Rate limiting: máx 5 intentos de login fallidos por minuto por IP
+- Rate limiting: máximo 5 intentos de login fallidos por minuto por IP
 - Row Level Security (RLS) en Supabase
-- Variables de entorno en Vercel — claves fuera del código
+- Variables de entorno en Vercel: claves fuera del código
 - Validación estricta de todos los inputs en el servidor
-- Headers HTTP: `HSTS`, `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`
+- Cabeceras HTTP: `HSTS`, `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`
 - HTTPS automático vía Vercel
 
 ---
 
-## 📚 Referencia
+## Licencia
 
-Baron-Cohen, S., Wheelwright, S., Skinner, R., Martin, J., & Clubley, E. (2001). *The Autism-Spectrum Quotient (AQ): Evidence from Asperger Syndrome/High-Functioning Autism, Males and Females, Scientists and Mathematicians.* Journal of Autism and Developmental Disorders, 31(1), 5–17.
+Este proyecto está bajo la Licencia MIT. Consulta el archivo `LICENSE` para más detalles.
 
 ---
-<div align="center">
-*Hecho con 💜 como broma en la escuela o((>ω< ))o. Trátalo como tal.*
-       
-</div>
-<div align="center">
-       <img width="368" height="368" alt="image" src="https://github.com/user-attachments/assets/d827a6be-ec4d-4e9a-9df5-da44c832b6e5" />
-</div>
 
-
+<div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #666; text-align: center;">
+  Proyecto Test AQ-50 Universitario — Documentación técnica
+</div>
